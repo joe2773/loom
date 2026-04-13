@@ -1,0 +1,261 @@
+/* ── Reset & base ──────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:         #0f0f1a;
+  --surface:    #1a1a2e;
+  --surface2:   #22223b;
+  --border:     #2e2e4a;
+  --text:       #e8e8f0;
+  --text-muted: #7070a0;
+  --red:        #e74c3c;
+  --green:      #2ecc71;
+  --blue:       #4a9eff;
+  --radius:     6px;
+  --font:       'Inter', system-ui, -apple-system, sans-serif;
+  --mono:       'JetBrains Mono', 'Fira Code', monospace;
+}
+
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+/* ── App layout ────────────────────────────────────────────────────────────── */
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────────── */
+#header {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.05em;
+  color: var(--text);
+}
+
+/* ── Preview ────────────────────────────────────────────────────────────────── */
+#preview-container {
+  flex: 1;
+  position: relative;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 0;
+}
+
+#preview-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-muted);
+  pointer-events: none;
+  user-select: none;
+}
+
+.placeholder-icon {
+  font-size: 48px;
+  opacity: 0.3;
+}
+
+#preview-placeholder p {
+  font-size: 15px;
+}
+
+#preview {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+#crop-canvas {
+  display: none;
+}
+
+/* Region overlay — covers the whole preview container while selecting */
+#region-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  cursor: crosshair;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 10;
+}
+
+/* The dragged selection rectangle */
+#selection-box {
+  display: none;
+  position: absolute;
+  border: 2px dashed var(--red);
+  background: rgba(231, 76, 60, 0.08);
+  pointer-events: none;
+  z-index: 11;
+}
+
+/* ── Controls bar ───────────────────────────────────────────────────────────── */
+#controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+#source-controls,
+#record-controls,
+#format-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#format-controls label {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* ── Timer ──────────────────────────────────────────────────────────────────── */
+#timer {
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  min-width: 52px;
+  text-align: center;
+  margin-left: auto;
+}
+
+#timer.recording {
+  color: var(--red);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+#timer.paused {
+  color: #f39c12;
+  animation: none;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, opacity 0.15s, border-color 0.15s;
+  user-select: none;
+}
+
+.btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--blue);
+  color: #fff;
+}
+.btn-primary:not(:disabled):hover {
+  background: #3a8eef;
+}
+
+.btn-record {
+  background: var(--red);
+  color: #fff;
+}
+.btn-record:not(:disabled):hover {
+  background: #c0392b;
+}
+
+.btn-secondary {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--border);
+}
+.btn-secondary:not(:disabled):hover {
+  background: #2c2c48;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+.btn-ghost:not(:disabled):hover {
+  color: var(--text);
+  background: var(--surface2);
+}
+
+.record-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+/* ── Selects ────────────────────────────────────────────────────────────────── */
+.select {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px 8px;
+  font-family: var(--font);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.select:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Status bar ─────────────────────────────────────────────────────────────── */
+#status-bar {
+  padding: 5px 16px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+#status-text {
+  font-size: 12px;
+  color: var(--text-muted);
+}
