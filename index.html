@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loom — Screen Recorder</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header id="header">
+      <span class="logo">⬛ loom</span>
+    </header>
+
+    <div id="preview-container">
+      <div id="preview-placeholder">
+        <div class="placeholder-icon">⬛</div>
+        <p>Click <strong>Select Source</strong> to begin</p>
+      </div>
+      <video id="preview" autoplay muted playsinline></video>
+      <canvas id="crop-canvas"></canvas>
+      <div id="region-overlay"></div>
+      <div id="selection-box"></div>
+    </div>
+
+    <div id="controls">
+      <div id="source-controls">
+        <button id="btn-select-source" class="btn btn-primary">Select Source</button>
+        <button id="btn-region-mode" class="btn btn-secondary" disabled>Select Region</button>
+        <button id="btn-clear-region" class="btn btn-ghost" disabled>Clear Region</button>
+      </div>
+
+      <div id="record-controls">
+        <button id="btn-record" class="btn btn-record" disabled>
+          <span class="btn-icon record-dot"></span> Record
+        </button>
+        <button id="btn-pause" class="btn btn-secondary" disabled>Pause</button>
+        <button id="btn-stop" class="btn btn-secondary" disabled>Stop</button>
+        <button id="btn-screenshot" class="btn btn-secondary" disabled>Screenshot</button>
+      </div>
+
+      <div id="timer">00:00</div>
+
+      <div id="format-controls">
+        <label for="select-format">Format</label>
+        <select id="select-format" class="select">
+          <option value="video/webm">WebM</option>
+          <option value="video/mp4">MP4</option>
+        </select>
+        <label for="select-quality">Quality</label>
+        <select id="select-quality" class="select">
+          <option value="2500000">High</option>
+          <option value="1000000">Medium</option>
+          <option value="500000">Low</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="status-bar">
+      <span id="status-text">Ready — select a source to get started</span>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
