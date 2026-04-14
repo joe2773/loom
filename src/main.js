@@ -6,28 +6,46 @@ import { RecordingTimer } from './timer.js';
 import { downloadBlob, downloadCanvasAsPng, generateFilename } from './downloader.js';
 
 // ─── DOM refs ────────────────────────────────────────────────────────────────
-const video        = document.getElementById('preview');
-const cropCanvas   = document.getElementById('crop-canvas');
-const regionOverlay = document.getElementById('region-overlay');
-const selectionBox = document.getElementById('selection-box');
-const placeholder  = document.getElementById('preview-placeholder');
-const timerEl      = document.getElementById('timer');
-const statusEl     = document.getElementById('status-text');
+const video          = document.getElementById('preview');
+const cropCanvas     = document.getElementById('crop-canvas');
+const regionOverlay  = document.getElementById('region-overlay');
+const selectionBox   = document.getElementById('selection-box');
+const timerEl        = document.getElementById('timer');
+const statusEl       = document.getElementById('status-text');
 
+// Panels
+const setupPanel      = document.getElementById('setup-panel');
+const previewContainer = document.getElementById('preview-container');
+const previewToolbar  = document.getElementById('preview-toolbar');
+const recordingPill   = document.getElementById('recording-pill');
+const gearPanel       = document.getElementById('gear-panel');
+
+// Buttons
 const btnSource    = document.getElementById('btn-select-source');
 const btnRegion    = document.getElementById('btn-region-mode');
-const btnClear     = document.getElementById('btn-clear-region');
 const btnRecord    = document.getElementById('btn-record');
+const btnClear     = document.getElementById('btn-clear-region');
 const btnPause     = document.getElementById('btn-pause');
 const btnStop      = document.getElementById('btn-stop');
-const btnShot      = document.getElementById('btn-screenshot');
+const btnShot      = document.getElementById('btn-screenshot');       // setup card
+const btnShotPill  = document.getElementById('btn-screenshot-pill'); // recording pill
+const btnGear      = document.getElementById('btn-gear');
 
-const fmtSelect    = document.getElementById('select-format');
-const qualSelect   = document.getElementById('select-quality');
+// Pause/resume icons
+const iconPause  = document.getElementById('icon-pause');
+const iconResume = document.getElementById('icon-resume');
+
+// Format / quality — setup card
+const fmtSelect  = document.getElementById('select-format');
+const qualSelect = document.getElementById('select-quality');
+
+// Format / quality — pill
+const fmtSelectPill  = document.getElementById('select-format-pill');
+const qualSelectPill = document.getElementById('select-quality-pill');
 
 // ─── App state ───────────────────────────────────────────────────────────────
 const state = {
-  phase: 'idle',       // 'idle' | 'previewing' | 'recording' | 'paused'
+  phase: 'idle',
   stream: null,
   recorder: null,
   timer: new RecordingTimer(timerEl),
@@ -36,7 +54,7 @@ const state = {
   rafId: null,
 };
 
-// ─── Region selector setup ───────────────────────────────────────────────────
+// ─── Region selector ─────────────────────────────────────────────────────────
 state.regionSelector = new RegionSelector(
   regionOverlay,
   selectionBox,
@@ -62,31 +80,44 @@ function setStatus(msg) {
 function setPhase(phase) {
   state.phase = phase;
 
+  const isIdle       = phase === 'idle';
   const isPreviewing = phase === 'previewing';
   const isRecording  = phase === 'recording';
   const isPaused     = phase === 'paused';
   const isActive     = isRecording || isPaused;
 
-  btnSource.disabled    = isActive;
-  btnRegion.disabled    = !isPreviewing;
-  btnRecord.disabled    = !isPreviewing;
-  btnPause.disabled     = !isActive;
-  btnStop.disabled      = !isActive;
-  btnShot.disabled      = phase === 'idle';
-  fmtSelect.disabled    = isActive;
-  qualSelect.disabled   = isActive;
+  // Panel visibility
+  setupPanel.classList.toggle('hidden', !isIdle);
+  previewContainer.classList.toggle('hidden', isIdle);
+  previewToolbar.classList.toggle('hidden', !isPreviewing);
+  recordingPill.classList.toggle('hidden', !isActive);
+  recordingPill.classList.toggle('paused', isPaused);
 
-  btnPause.textContent  = isPaused ? 'Resume' : 'Pause';
-  timerEl.classList.toggle('recording', isRecording);
-  timerEl.classList.toggle('paused', isPaused);
+  // Pause/resume icon swap
+  iconPause.classList.toggle('hidden', isPaused);
+  iconResume.classList.toggle('hidden', !isPaused);
+
+  // Button states
+  btnSource.disabled   = isActive;
+  btnRegion.disabled   = !isPreviewing;
+  btnRecord.disabled   = !isPreviewing;
+  btnClear.disabled    = !isPreviewing || !state.cropRect;
+  btnPause.disabled    = !isActive;
+  btnStop.disabled     = !isActive;
+  btnShot.disabled     = isIdle;
+  btnShotPill.disabled = !isActive;
+
+  // Lock format/quality while recording
+  fmtSelect.disabled     = isActive;
+  qualSelect.disabled    = isActive;
+  fmtSelectPill.disabled = isActive;
+  qualSelectPill.disabled = isActive;
 }
 
 function mimeExt(mimeType) {
-  if (mimeType.includes('mp4')) return 'mp4';
-  return 'webm';
+  return mimeType.includes('mp4') ? 'mp4' : 'webm';
 }
 
-/** Start the rAF loop that draws cropped frames into cropCanvas. */
 function startCropLoop(cropRect) {
   const vw = video.videoWidth;
   const vh = video.videoHeight;
@@ -126,7 +157,13 @@ async function stopRecording() {
   setPhase('previewing');
 }
 
-// ─── Stream ended (user closed the browser picker) ───────────────────────────
+function doScreenshot() {
+  const canvas = captureFrame(video, state.cropRect);
+  downloadCanvasAsPng(canvas, generateFilename('image', 'png'));
+  setStatus('Screenshot saved');
+}
+
+// ─── Stream ended externally ──────────────────────────────────────────────────
 function onStreamEnded() {
   if (state.phase === 'recording' || state.phase === 'paused') {
     setStatus('Source ended — saving recording…');
@@ -144,26 +181,23 @@ function resetToIdle() {
   state.cropRect = null;
   selectionBox.style.display = 'none';
   video.srcObject = null;
-  placeholder.style.display = 'flex';
+  gearPanel.classList.add('hidden');
   setPhase('idle');
   setStatus('Ready — select a source to get started');
 }
 
-// ─── Button handlers ─────────────────────────────────────────────────────────
+// ─── Button handlers ──────────────────────────────────────────────────────────
 btnSource.addEventListener('click', async () => {
   try {
     if (state.stream) stopStream(state.stream);
     state.stream = await acquireStream({ audio: true });
-
-    // Watch for the user closing the picker / stopping share
     state.stream.getVideoTracks()[0].addEventListener('ended', onStreamEnded);
 
     video.srcObject = state.stream;
-    placeholder.style.display = 'none';
 
-    // Warn if mp4 isn't supported and swap to webm
     if (fmtSelect.value === 'video/mp4' && !MediaRecorder.isTypeSupported('video/mp4')) {
       fmtSelect.value = 'video/webm';
+      fmtSelectPill.value = 'video/webm';
       setStatus('MP4 not supported in this browser — switched to WebM');
     } else {
       setStatus('Source selected — ready to record');
@@ -178,18 +212,21 @@ btnSource.addEventListener('click', async () => {
 });
 
 btnRegion.addEventListener('click', () => {
-  setStatus('Drag to select a region, or click to cancel');
+  setStatus('Drag to select a region');
   state.regionSelector.activate();
 });
 
 btnClear.addEventListener('click', () => {
   state.regionSelector.clearSelection();
-  btnClear.disabled = true;
 });
 
 btnRecord.addEventListener('click', () => {
   const mimeType = fmtSelect.value;
   const videoBitsPerSecond = parseInt(qualSelect.value, 10);
+
+  // Sync pill dropdowns to reflect locked values
+  fmtSelectPill.value  = mimeType;
+  qualSelectPill.value = qualSelect.value;
 
   let recordStream = state.stream;
   if (state.cropRect) {
@@ -223,10 +260,21 @@ btnStop.addEventListener('click', () => {
   stopRecording();
 });
 
-btnShot.addEventListener('click', () => {
-  const canvas = captureFrame(video, state.cropRect);
-  downloadCanvasAsPng(canvas, generateFilename('image', 'png'));
-  setStatus('Screenshot saved');
+btnShot.addEventListener('click', doScreenshot);
+btnShotPill.addEventListener('click', doScreenshot);
+
+// ─── Gear panel ───────────────────────────────────────────────────────────────
+btnGear.addEventListener('click', (e) => {
+  e.stopPropagation();
+  gearPanel.classList.toggle('hidden');
+});
+
+document.addEventListener('click', (e) => {
+  if (!gearPanel.classList.contains('hidden') &&
+      !gearPanel.contains(e.target) &&
+      e.target !== btnGear) {
+    gearPanel.classList.add('hidden');
+  }
 });
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
