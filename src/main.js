@@ -4,6 +4,8 @@ import { RegionSelector } from './region.js';
 import { captureFrame } from './screenshot.js';
 import { RecordingTimer } from './timer.js';
 import { downloadBlob, downloadCanvasAsPng, generateFilename } from './downloader.js';
+import { uploadToGCS } from './uploader.js';
+import { loadLibrary, prependCard } from './library.js';
 
 // ─── DOM refs ────────────────────────────────────────────────────────────────
 const video          = document.getElementById('preview');
@@ -148,13 +150,25 @@ async function stopRecording() {
   stopCropLoop();
   state.timer.stop();
 
-  const blob = await state.recorder.stop();
-  const ext  = mimeExt(state.recorder.mimeType);
-  downloadBlob(blob, generateFilename('video', ext));
-  setStatus(`Saved recording as .${ext}`);
+  const blob     = await state.recorder.stop();
+  const ext      = mimeExt(state.recorder.mimeType);
+  const filename = generateFilename('video', ext);
+
+  downloadBlob(blob, filename);
+  setStatus(`Saved locally as .${ext}${import.meta.env.VITE_API_URL ? ' — uploading…' : ''}`);
 
   state.recorder = null;
   setPhase('previewing');
+
+  if (import.meta.env.VITE_API_URL) {
+    try {
+      const publicUrl = await uploadToGCS(blob, filename);
+      prependCard(filename, publicUrl);
+      setStatus(`Saved and uploaded: ${filename}`);
+    } catch (err) {
+      setStatus(`Saved locally — upload failed: ${err.message}`);
+    }
+  }
 }
 
 function doScreenshot() {
@@ -279,3 +293,7 @@ document.addEventListener('click', (e) => {
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 setPhase('idle');
+
+if (import.meta.env.VITE_API_URL) {
+  loadLibrary().catch(() => { /* library unavailable — fail silently */ });
+}

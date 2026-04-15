@@ -1,97 +1,70 @@
 # Loom — Screen Recorder
 
-A lightweight, browser-based screen recording tool. Capture your entire screen, a specific region, or take screenshots — all without a backend. Recordings and screenshots are automatically saved to your Downloads folder.
+A lightweight, browser-based screen recording tool. Capture your entire screen, a specific region, or take screenshots. Recordings download locally and are uploaded to Google Cloud Storage, where they appear in a persistent library.
 
 ## Features
 
-- 🎬 **Screen Recording** — record your full screen or select a window/tab
-- 🎯 **Region Selection** — drag to select a specific area to record
-- 📸 **Screenshot** — capture still images of your screen or selected region
-- ⏸️ **Pause/Resume** — control your recording with play/pause
-- 📥 **Auto-Download** — files save directly to Downloads on stop
-- 🎨 **Modern UI** — Loom-inspired design with dark recording pill and setup card
+- **Screen Recording** — record your full screen or select a window/tab
+- **Region Selection** — drag to select a specific area to record
+- **Screenshot** — capture still images of your screen or selected region
+- **Pause/Resume** — control your recording with play/pause
+- **Auto-Download** — files save directly to Downloads on stop
+- **Cloud Library** — recordings are uploaded to GCS and shown in a persistent grid below the workspace
 
 ## Tech Stack
 
 - **Frontend**: Vanilla JavaScript + HTML5 Canvas
+- **Backend API**: Node.js + Express (Cloud Run)
+- **Storage**: Google Cloud Storage
 - **Build Tool**: Vite
 - **Testing**: Vitest + jsdom
-- **APIs**: `getDisplayMedia`, `MediaRecorder`, Canvas 2D
+- **Infrastructure**: Terraform + GCP (Cloud Run, Artifact Registry, GCS)
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 16+ and npm
+- Node.js 18+ and npm
+- Docker
+- [gcloud CLI](https://cloud.google.com/sdk/docs/install)
+- [Terraform](https://developer.hashicorp.com/terraform/install)
 
-### Installation
+### Local Development (frontend only)
 
 ```bash
 git clone https://github.com/joe2773/loom.git
 cd loom
 npm install
-```
-
-## Development
-
-### Run the Dev Server
-
-```bash
 npm run dev
 ```
 
-Opens the app at `http://localhost:5173`. Hot module reload is enabled — changes appear instantly.
+Opens the app at `http://localhost:5173`. Without `VITE_API_URL` set, the app works fully for recording and local download — the library section is simply hidden.
 
-### Build for Production
+### Local Development (with API)
 
-```bash
-npm run build
-```
-
-Creates an optimized static bundle in the `dist/` directory.
-
-### Preview Production Build
+To run the API locally alongside the frontend:
 
 ```bash
-npm run preview
-```
+# Terminal 1 — API server
+cd api
+npm install
+BUCKET_NAME=your-bucket-name node server.js
 
-Serves the production build locally to verify it works.
+# Terminal 2 — Frontend
+cd ..
+echo "VITE_API_URL=http://localhost:8080" > .env.local
+npm run dev
+```
 
 ## Testing
 
-### Run All Tests
-
 ```bash
+# Frontend tests
 npm test
+
+# Backend tests
+cd api && npm test
 ```
-
-Runs the full test suite once (64 passing tests).
-
-### Watch Mode
-
-```bash
-npm run test:watch
-```
-
-Re-runs tests automatically whenever you edit a file. Great for TDD.
-
-### Test Coverage
-
-- **42 unit tests** — individual modules (recorder, timer, region selector, etc.)
-- **22 integration tests** — app state machine and feature flows
-
-Tests use mocked browser APIs (MediaRecorder, getDisplayMedia, Canvas) so they run headlessly without user interaction.
-
-## How to Use
-
-1. Open the app in your browser
-2. Click **"Screen"** to select your recording source (browser will show a native picker)
-3. **(Optional)** Click **"Region"** and drag to select an area to record
-4. Click **"Start Recording"** to begin
-5. Click **"Pause"** to pause, or **"Resume"** to continue
-6. Click **"Stop"** to finish — the `.webm` file downloads automatically
-7. Alternatively, click **"Screenshot"** to capture a still image (`.png`)
 
 ## Project Structure
 
@@ -106,19 +79,173 @@ loom/
 │   ├── screenshot.js      # Canvas frame capture
 │   ├── timer.js           # Recording duration tracker
 │   ├── downloader.js      # File download utilities
-│   └── style.css          # Loom-inspired dark UI
+│   ├── uploader.js        # GCS signed URL upload
+│   ├── library.js         # Video library UI
+│   └── style.css          # UI styles
+├── api/
+│   ├── server.js          # Express API (sign-upload, list videos)
+│   ├── Dockerfile
+│   └── package.json
+├── terraform/
+│   ├── main.tf            # GCP infrastructure (Cloud Run, GCS, IAM)
+│   ├── variables.tf
+│   ├── outputs.tf
+│   └── terraform.tfvars.example
 ├── tests/
-│   ├── setup.js           # Shared mock factories & global setup
-│   ├── unit/              # Unit tests (recorder, timer, region, etc.)
-│   └── integration/       # Integration tests (state machine)
-├── package.json
-├── vite.config.js
-└── README.md
+│   ├── setup.js
+│   ├── unit/
+│   └── integration/
+├── Dockerfile             # Frontend multi-stage build (nginx)
+├── nginx.conf
+└── vite.config.js
 ```
+
+## Deployment
+
+The app runs on GCP. The frontend is served from one Cloud Run service, the API from a second, and videos are stored in a GCS bucket. Infrastructure is managed with Terraform.
+
+### Prerequisites
+
+```bash
+gcloud auth login
+gcloud auth application-default login
+gcloud config set project YOUR_PROJECT_ID
+gcloud auth configure-docker us-central1-docker.pkg.dev
+```
+
+### First-time setup
+
+**1. Configure Terraform variables**
+
+```bash
+cp terraform/terraform.tfvars.example terraform/terraform.tfvars
+# Edit terraform.tfvars and set your project_id
+```
+
+**2. Provision infrastructure (excluding Cloud Run services — images don't exist yet)**
+
+```bash
+cd terraform
+
+terraform init
+
+terraform apply \
+  -target=google_project_service.run \
+  -target=google_project_service.artifactregistry \
+  -target=google_project_service.storage \
+  -target=google_project_service.iamcredentials \
+  -target=google_artifact_registry_repository.loom \
+  -target=google_artifact_registry_repository.loom_api \
+  -target=google_storage_bucket.loom_videos \
+  -target=google_storage_bucket_iam_member.public_read \
+  -target=google_service_account.loom_api \
+  -target=google_storage_bucket_iam_member.api_object_admin \
+  -target=google_service_account_iam_member.api_token_creator
+```
+
+**3. Build and push the API image**
+
+```bash
+cd ..  # back to repo root
+
+docker build --platform linux/amd64 \
+  -t us-central1-docker.pkg.dev/YOUR_PROJECT_ID/loom-api/loom-api:latest \
+  ./api
+
+docker push us-central1-docker.pkg.dev/YOUR_PROJECT_ID/loom-api/loom-api:latest
+```
+
+**4. Deploy the API Cloud Run service**
+
+```bash
+cd terraform
+terraform apply
+```
+
+**5. Capture the API URL**
+
+```bash
+terraform output api_service_url
+# e.g. https://loom-api-xxxx-uc.a.run.app
+```
+
+**6. Build and push the frontend image**
+
+```bash
+cd ..  # back to repo root
+
+docker build --platform linux/amd64 \
+  --build-arg VITE_API_URL=https://loom-api-xxxx-uc.a.run.app \
+  -t us-central1-docker.pkg.dev/YOUR_PROJECT_ID/loom/loom:latest \
+  .
+
+docker push us-central1-docker.pkg.dev/YOUR_PROJECT_ID/loom/loom:latest
+```
+
+**7. Deploy the frontend and get the live URL**
+
+```bash
+cd terraform
+terraform apply
+terraform output service_url
+```
+
+---
+
+### Deploying frontend changes
+
+Run from the repo root:
+
+```bash
+docker build --platform linux/amd64 \
+  --build-arg VITE_API_URL=https://loom-api-xxxx-uc.a.run.app \
+  -t us-central1-docker.pkg.dev/YOUR_PROJECT_ID/loom/loom:latest \
+  .
+
+docker push us-central1-docker.pkg.dev/YOUR_PROJECT_ID/loom/loom:latest
+
+gcloud run services update loom \
+  --region=us-central1 \
+  --image=us-central1-docker.pkg.dev/YOUR_PROJECT_ID/loom/loom:latest
+```
+
+> `gcloud run services update` is used instead of `terraform apply` because Terraform won't detect a change when the image tag stays as `:latest`. The gcloud command forces Cloud Run to pull the new image and create a fresh revision.
+
+---
+
+### Deploying API changes
+
+Run from the repo root:
+
+```bash
+docker build --platform linux/amd64 \
+  -t us-central1-docker.pkg.dev/YOUR_PROJECT_ID/loom-api/loom-api:latest \
+  ./api
+
+docker push us-central1-docker.pkg.dev/YOUR_PROJECT_ID/loom-api/loom-api:latest
+
+gcloud run services update loom-api \
+  --region=us-central1 \
+  --image=us-central1-docker.pkg.dev/YOUR_PROJECT_ID/loom-api/loom-api:latest
+```
+
+---
+
+### Deploying infrastructure changes
+
+For changes to `terraform/main.tf` (new resources, config changes, IAM updates):
+
+```bash
+cd terraform
+terraform plan   # review what will change
+terraform apply
+```
+
+---
 
 ## Browser Support
 
-Works in modern Chromium browsers (Chrome, Edge, Brave, etc.) that support:
+Works in modern Chromium browsers (Chrome, Edge, Brave) that support:
 - `navigator.mediaDevices.getDisplayMedia()`
 - `MediaRecorder` API
 - Canvas 2D context
