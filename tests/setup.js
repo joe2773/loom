@@ -27,10 +27,10 @@ export function makeFakeMediaRecorder(stream, options = {}) {
     resume: vi.fn(),
     stop: vi.fn(),
     state: 'inactive',
-    mimeType: options.mimeType || 'video/webm',
+    mimeType: options.mimeType || 'video/mp4',
     ondataavailable: null,
     onstop: null,
-    _triggerData(data = new Blob(['chunk'], { type: 'video/webm' })) {
+    _triggerData(data = new Blob(['chunk'], { type: 'video/mp4' })) {
       if (instance.ondataavailable) instance.ondataavailable({ data });
     },
     _triggerStop() {

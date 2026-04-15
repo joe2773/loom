@@ -16,22 +16,28 @@ const timerEl        = document.getElementById('timer');
 const statusEl       = document.getElementById('status-text');
 
 // Panels
-const setupPanel      = document.getElementById('setup-panel');
+const setupPanel       = document.getElementById('setup-panel');
 const previewContainer = document.getElementById('preview-container');
-const previewToolbar  = document.getElementById('preview-toolbar');
-const recordingPill   = document.getElementById('recording-pill');
-const gearPanel       = document.getElementById('gear-panel');
+const previewToolbar   = document.getElementById('preview-toolbar');
+const recordingPill    = document.getElementById('recording-pill');
+const gearPanel        = document.getElementById('gear-panel');
+const recordingModal   = document.getElementById('recording-modal');
 
 // Buttons
-const btnSource    = document.getElementById('btn-select-source');
-const btnRegion    = document.getElementById('btn-region-mode');
-const btnRecord    = document.getElementById('btn-record');
-const btnClear     = document.getElementById('btn-clear-region');
-const btnPause     = document.getElementById('btn-pause');
-const btnStop      = document.getElementById('btn-stop');
-const btnShot      = document.getElementById('btn-screenshot');       // setup card
-const btnShotPill  = document.getElementById('btn-screenshot-pill'); // recording pill
-const btnGear      = document.getElementById('btn-gear');
+const btnNewVideo   = document.getElementById('btn-new-video');
+const btnModalClose = document.getElementById('btn-modal-close');
+const modalBackdrop = document.getElementById('modal-backdrop');
+const btnSource     = document.getElementById('btn-select-source');
+const btnRegion     = document.getElementById('btn-region-mode');
+const btnRecord     = document.getElementById('btn-record');         // preview toolbar
+const btnRecordSetup = document.getElementById('btn-record-setup'); // setup card
+const btnClear      = document.getElementById('btn-clear-region');
+const btnPause      = document.getElementById('btn-pause');
+const btnStop       = document.getElementById('btn-stop');
+const btnShot       = document.getElementById('btn-screenshot');       // setup card
+const btnShotPill   = document.getElementById('btn-screenshot-pill'); // recording pill
+const btnGear       = document.getElementById('btn-gear');
+const btnCloseBanner = document.getElementById('btn-close-banner');
 
 // Pause/resume icons
 const iconPause  = document.getElementById('icon-pause');
@@ -79,40 +85,61 @@ function setStatus(msg) {
   statusEl.textContent = msg;
 }
 
+function showModal() {
+  recordingModal.classList.remove('hidden');
+}
+
+function hideModal() {
+  recordingModal.classList.add('hidden');
+}
+
 function setPhase(phase) {
   state.phase = phase;
 
-  const isIdle       = phase === 'idle';
-  const isPreviewing = phase === 'previewing';
-  const isRecording  = phase === 'recording';
-  const isPaused     = phase === 'paused';
-  const isActive     = isRecording || isPaused;
+  const isIdle           = phase === 'idle';
+  const isSourceSelected = phase === 'source-selected';
+  const isPreviewing     = phase === 'previewing';
+  const isRecording      = phase === 'recording';
+  const isPaused         = phase === 'paused';
+  const isActive         = isRecording || isPaused;
+  const isSetup          = isIdle || isSourceSelected;
 
-  // Panel visibility
-  setupPanel.classList.toggle('hidden', !isIdle);
-  previewContainer.classList.toggle('hidden', isIdle);
+  // Modal: open for any active recording phase, stay open for setup too
+  if (isActive) {
+    hideModal();
+  }
+
+  // Panel visibility inside modal
+  setupPanel.classList.toggle('hidden', !isSetup);
+  previewContainer.classList.toggle('hidden', !isPreviewing);
   previewToolbar.classList.toggle('hidden', !isPreviewing);
   recordingPill.classList.toggle('hidden', !isActive);
   recordingPill.classList.toggle('paused', isPaused);
+
+  // "Start Recording" button in setup card — only show when source is selected
+  btnRecordSetup.classList.toggle('hidden', !isSourceSelected);
+
+  // Highlight the Screen button when source is selected
+  btnSource.classList.toggle('selected', isSourceSelected);
 
   // Pause/resume icon swap
   iconPause.classList.toggle('hidden', isPaused);
   iconResume.classList.toggle('hidden', !isPaused);
 
   // Button states
-  btnSource.disabled   = isActive;
-  btnRegion.disabled   = !isPreviewing;
-  btnRecord.disabled   = !isPreviewing;
-  btnClear.disabled    = !isPreviewing || !state.cropRect;
-  btnPause.disabled    = !isActive;
-  btnStop.disabled     = !isActive;
-  btnShot.disabled     = isIdle;
-  btnShotPill.disabled = !isActive;
+  btnSource.disabled    = isActive;
+  btnRegion.disabled    = !(isPreviewing || isSourceSelected);
+  btnRecord.disabled    = !isPreviewing;
+  btnClear.disabled     = !isPreviewing || !state.cropRect;
+  btnPause.disabled     = !isActive;
+  btnStop.disabled      = !isActive;
+  btnShot.disabled      = isIdle;
+  btnShotPill.disabled  = !isActive;
 
   // Lock format/quality while recording
-  fmtSelect.disabled     = isActive;
-  qualSelect.disabled    = isActive;
-  fmtSelectPill.disabled = isActive;
+  fmtSelect.disabled      = isActive;
+  qualSelect.disabled     = isActive;
+  fmtSelectPill.disabled  = isActive;
   qualSelectPill.disabled = isActive;
 }
 
@@ -146,6 +173,27 @@ function stopCropLoop() {
   }
 }
 
+function startRecording() {
+  const mimeType = fmtSelect.value;
+  const videoBitsPerSecond = parseInt(qualSelect.value, 10);
+
+  // Sync pill dropdowns to reflect locked values
+  fmtSelectPill.value  = mimeType;
+  qualSelectPill.value = qualSelect.value;
+
+  let recordStream = state.stream;
+  if (state.cropRect) {
+    startCropLoop(state.cropRect);
+    recordStream = cropCanvas.captureStream(30);
+  }
+
+  state.recorder = new ScreenRecorder(recordStream, { mimeType, videoBitsPerSecond });
+  state.recorder.start();
+  state.timer.start();
+  setPhase('recording');
+  setStatus('Recording…');
+}
+
 async function stopRecording() {
   stopCropLoop();
   state.timer.stop();
@@ -158,7 +206,9 @@ async function stopRecording() {
   setStatus(`Saved locally as .${ext}${import.meta.env.VITE_API_URL ? ' — uploading…' : ''}`);
 
   state.recorder = null;
-  setPhase('previewing');
+  // After stopping, go back to source-selected so user can record again
+  setPhase('source-selected');
+  showModal();
 
   if (import.meta.env.VITE_API_URL) {
     try {
@@ -197,8 +247,26 @@ function resetToIdle() {
   video.srcObject = null;
   gearPanel.classList.add('hidden');
   setPhase('idle');
-  setStatus('Ready — select a source to get started');
+  hideModal();
+  setStatus('Ready');
 }
+
+// ─── Modal open / close ───────────────────────────────────────────────────────
+btnNewVideo.addEventListener('click', () => {
+  setPhase('idle');
+  showModal();
+});
+
+btnModalClose.addEventListener('click', () => {
+  resetToIdle();
+});
+
+modalBackdrop.addEventListener('click', () => {
+  // Only close if not mid-recording
+  if (state.phase === 'idle' || state.phase === 'source-selected' || state.phase === 'previewing') {
+    resetToIdle();
+  }
+});
 
 // ─── Button handlers ──────────────────────────────────────────────────────────
 btnSource.addEventListener('click', async () => {
@@ -208,16 +276,8 @@ btnSource.addEventListener('click', async () => {
     state.stream.getVideoTracks()[0].addEventListener('ended', onStreamEnded);
 
     video.srcObject = state.stream;
-
-    if (fmtSelect.value === 'video/mp4' && !MediaRecorder.isTypeSupported('video/mp4')) {
-      fmtSelect.value = 'video/webm';
-      fmtSelectPill.value = 'video/webm';
-      setStatus('MP4 not supported in this browser — switched to WebM');
-    } else {
-      setStatus('Source selected — ready to record');
-    }
-
-    setPhase('previewing');
+    setStatus('Source selected — ready to record');
+    setPhase('source-selected');
   } catch (err) {
     if (err.name !== 'NotAllowedError') {
       setStatus(`Error: ${err.message}`);
@@ -225,8 +285,15 @@ btnSource.addEventListener('click', async () => {
   }
 });
 
+// "Start Recording" from the setup card (source-selected phase)
+btnRecordSetup.addEventListener('click', () => {
+  startRecording();
+});
+
 btnRegion.addEventListener('click', () => {
   setStatus('Drag to select a region');
+  // Show the preview so the user can draw a region
+  setPhase('previewing');
   state.regionSelector.activate();
 });
 
@@ -234,25 +301,9 @@ btnClear.addEventListener('click', () => {
   state.regionSelector.clearSelection();
 });
 
+// "Start Recording" from the preview toolbar (previewing/region flow)
 btnRecord.addEventListener('click', () => {
-  const mimeType = fmtSelect.value;
-  const videoBitsPerSecond = parseInt(qualSelect.value, 10);
-
-  // Sync pill dropdowns to reflect locked values
-  fmtSelectPill.value  = mimeType;
-  qualSelectPill.value = qualSelect.value;
-
-  let recordStream = state.stream;
-  if (state.cropRect) {
-    startCropLoop(state.cropRect);
-    recordStream = cropCanvas.captureStream(30);
-  }
-
-  state.recorder = new ScreenRecorder(recordStream, { mimeType, videoBitsPerSecond });
-  state.recorder.start();
-  state.timer.start();
-  setPhase('recording');
-  setStatus('Recording…');
+  startRecording();
 });
 
 btnPause.addEventListener('click', () => {
@@ -276,6 +327,14 @@ btnStop.addEventListener('click', () => {
 
 btnShot.addEventListener('click', doScreenshot);
 btnShotPill.addEventListener('click', doScreenshot);
+
+// ─── Invite banner dismiss ────────────────────────────────────────────────────
+if (btnCloseBanner) {
+  btnCloseBanner.addEventListener('click', () => {
+    const banner = document.getElementById('invite-banner');
+    if (banner) banner.style.display = 'none';
+  });
+}
 
 // ─── Gear panel ───────────────────────────────────────────────────────────────
 btnGear.addEventListener('click', (e) => {

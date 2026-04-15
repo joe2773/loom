@@ -12,189 +12,353 @@
 <body>
   <div id="app">
 
-    <!-- ── Header ──────────────────────────────────────────────────────── -->
-    <header id="header">
-      <div class="logo">
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <rect width="28" height="28" rx="6" fill="#625DF5"/>
-          <path d="M14 8L19.5 11.5V18.5L14 22L8.5 18.5V11.5L14 8Z" stroke="white" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
-          <circle cx="14" cy="15" r="3" fill="white"/>
+    <!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
+    <aside id="sidebar">
+      <div class="sidebar-logo">
+        <!-- Loom starburst logo -->
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Loom">
+          <rect width="36" height="36" rx="9" fill="#625DF5"/>
+          <line x1="18" y1="4"   x2="18" y2="11"  stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+          <line x1="18" y1="25"  x2="18" y2="32"  stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+          <line x1="4"  y1="18"  x2="11" y2="18"  stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+          <line x1="25" y1="18"  x2="32" y2="18"  stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+          <line x1="8.1"  y1="8.1"  x2="13.1" y2="13.1" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+          <line x1="22.9" y1="22.9" x2="27.9" y2="27.9" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+          <line x1="27.9" y1="8.1"  x2="22.9" y2="13.1" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+          <line x1="13.1" y1="22.9" x2="8.1"  y2="27.9" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+          <line x1="18" y1="4"   x2="18" y2="11"  stroke="white" stroke-width="2.4" stroke-linecap="round" transform="rotate(15 18 18)"/>
+          <line x1="18" y1="4"   x2="18" y2="11"  stroke="white" stroke-width="2.4" stroke-linecap="round" transform="rotate(-15 18 18)"/>
+          <line x1="18" y1="4"   x2="18" y2="11"  stroke="white" stroke-width="2.4" stroke-linecap="round" transform="rotate(195 18 18)"/>
+          <line x1="18" y1="4"   x2="18" y2="11"  stroke="white" stroke-width="2.4" stroke-linecap="round" transform="rotate(165 18 18)"/>
+          <circle cx="18" cy="18" r="5" fill="white"/>
         </svg>
-        <span class="logo-wordmark">loom</span>
       </div>
-    </header>
 
-    <!-- ── Main workspace ──────────────────────────────────────────────── -->
-    <main id="workspace">
+      <nav class="sidebar-nav">
+        <button class="sidebar-btn sidebar-btn--active" aria-label="Home">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9,22 9,12 15,12 15,22"/>
+          </svg>
+        </button>
+        <button class="sidebar-btn" aria-label="Team">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </button>
+        <button class="sidebar-btn" aria-label="My Videos">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polygon points="10,8 16,12 10,16"/>
+          </svg>
+        </button>
+        <button class="sidebar-btn" aria-label="Folders">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+          </svg>
+        </button>
+        <button class="sidebar-btn" aria-label="Saved">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+          </svg>
+        </button>
+        <button class="sidebar-btn" aria-label="History">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="12,8 12,12 14,14"/>
+            <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"/>
+          </svg>
+        </button>
+      </nav>
 
-      <!-- STATE 1: Idle setup panel -->
-      <div id="setup-panel">
-        <div class="setup-card">
-          <h2 class="setup-heading">What do you want to record?</h2>
-          <p class="setup-subheading">Choose your recording type to get started</p>
+      <div class="sidebar-bottom">
+        <button class="sidebar-btn" aria-label="Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </aside>
 
-          <div class="recording-type-grid">
-            <button class="type-card" id="btn-select-source">
-              <div class="type-card-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="2" y="3" width="20" height="14" rx="2"/>
-                  <path d="M8 21h8M12 17v4"/>
-                </svg>
-              </div>
-              <span class="type-card-label">Screen</span>
-              <span class="type-card-desc">Record your full screen</span>
-            </button>
+    <!-- ── Main content ──────────────────────────────────────────────────────── -->
+    <div id="main-content">
 
-            <button class="type-card" id="btn-region-mode" disabled>
-              <div class="type-card-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/>
-                  <rect x="7" y="7" width="10" height="10" rx="1" stroke-dasharray="2 2"/>
-                </svg>
-              </div>
-              <span class="type-card-label">Region</span>
-              <span class="type-card-desc">Record a selected area</span>
-            </button>
+      <!-- Top bar -->
+      <header id="top-bar">
+        <div class="search-wrap">
+          <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input class="search-input" type="text" placeholder="Search for people, tags, folders, Spaces, and Looms" />
+        </div>
+        <div class="top-bar-actions">
+          <button class="btn-upgrade">Upgrade</button>
+          <button class="topbar-icon-btn" aria-label="Notifications">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+          </button>
+          <button class="topbar-avatar" aria-label="Account">J</button>
+        </div>
+      </header>
 
-            <button class="type-card" id="btn-screenshot" disabled>
-              <div class="type-card-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                  <circle cx="12" cy="13" r="4"/>
-                </svg>
-              </div>
-              <span class="type-card-label">Screenshot</span>
-              <span class="type-card-desc">Capture a still image</span>
-            </button>
+      <!-- Library -->
+      <div id="library-content">
+
+        <!-- Title row -->
+        <div class="library-topbar">
+          <div class="library-title-group">
+            <span class="library-breadcrumb">Library</span>
+            <h1 class="library-page-heading">Videos</h1>
           </div>
-
-          <div id="format-controls">
-            <div class="format-group">
-              <label for="select-format">Format</label>
-              <select id="select-format" class="select">
-                <option value="video/webm">WebM</option>
-                <option value="video/mp4">MP4</option>
-              </select>
-            </div>
-            <div class="format-group">
-              <label for="select-quality">Quality</label>
-              <select id="select-quality" class="select">
-                <option value="2500000">High</option>
-                <option value="1000000">Medium</option>
-                <option value="500000">Low</option>
-              </select>
-            </div>
+          <div class="library-actions">
+            <button class="btn-new-folder">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                <line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/>
+              </svg>
+              New folder
+            </button>
+            <button id="btn-new-video" class="btn-new-video">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="23,7 16,12 23,17"/>
+                <rect x="1" y="5" width="15" height="14" rx="2"/>
+              </svg>
+              New video
+              <svg class="btn-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </button>
           </div>
         </div>
-      </div>
 
-      <!-- STATE 2: Preview area -->
-      <div id="preview-container" class="hidden">
-        <video id="preview" autoplay muted playsinline></video>
-        <!-- Functional elements — must stay in DOM -->
-        <canvas id="crop-canvas"></canvas>
-        <div id="region-overlay"></div>
-        <div id="selection-box"></div>
+        <!-- Tabs -->
+        <div class="library-tabs-row">
+          <div class="library-tabs">
+            <button class="lib-tab lib-tab--active">Videos</button>
+            <button class="lib-tab">Screenshots</button>
+            <button class="lib-tab">Archive</button>
+          </div>
+          <span id="library-count" class="library-count-badge"></span>
+        </div>
 
-        <!-- Preview toolbar (shown in 'previewing' phase only) -->
-        <div id="preview-toolbar">
-          <button id="btn-clear-region" class="toolbar-btn-ghost" disabled>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <!-- Invite banner -->
+        <div id="invite-banner" class="invite-banner">
+          <button class="invite-close" id="btn-close-banner" aria-label="Dismiss">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
-            Clear Region
           </button>
-          <button id="btn-record" class="btn-start-record" disabled>
-            <span class="record-dot-white"></span>
-            Start Recording
-          </button>
+          <div class="invite-inner">
+            <div class="invite-avatars">
+              <div class="invite-av invite-av--a">A</div>
+              <div class="invite-av invite-av--b">B</div>
+              <div class="invite-av invite-av--icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+              </div>
+            </div>
+            <div class="invite-text">
+              <h3 class="invite-heading">Invite your teammates</h3>
+              <p class="invite-sub">Loom is better when you know who you're working with. Invite your team for free!</p>
+            </div>
+            <button class="btn-invite-teammates">Invite teammates</button>
+          </div>
         </div>
-      </div>
 
-      <!-- Floating recording pill (shown during recording/paused) -->
-      <div id="recording-pill" class="hidden">
-        <!-- Gear panel floats above pill -->
-        <div id="gear-panel" class="hidden">
-          <div class="gear-row">
-            <label for="select-format-pill">Format</label>
-            <select id="select-format-pill" class="select-dark">
-              <option value="video/webm">WebM</option>
-              <option value="video/mp4">MP4</option>
+        <!-- Videos grid -->
+        <div class="videos-section">
+          <div class="sort-bar">
+            <select class="sort-select">
+              <option>Upload date</option>
+              <option>Name</option>
+              <option>Duration</option>
+            </select>
+            <select class="sort-select">
+              <option>Newest to Oldest</option>
+              <option>Oldest to Newest</option>
             </select>
           </div>
-          <div class="gear-row">
-            <label for="select-quality-pill">Quality</label>
-            <select id="select-quality-pill" class="select-dark">
-              <option value="2500000">High</option>
-              <option value="1000000">Medium</option>
-              <option value="500000">Low</option>
-            </select>
+          <div id="library-grid" class="library-grid"></div>
+          <p id="library-empty" class="library-empty hidden">
+            No recordings yet. Click <strong>New video</strong> to get started.
+          </p>
+        </div>
+
+      </div><!-- /library-content -->
+    </div><!-- /main-content -->
+
+    <!-- ── Recording modal ───────────────────────────────────────────────────── -->
+    <div id="recording-modal" class="hidden">
+      <div class="modal-backdrop" id="modal-backdrop"></div>
+      <div class="modal-panel">
+
+        <button class="modal-close" id="btn-modal-close" aria-label="Close">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+
+        <!-- STATE 1 / 1b: Setup (idle + source-selected) -->
+        <div id="setup-panel">
+          <div class="setup-card">
+            <h2 class="setup-heading">What do you want to record?</h2>
+            <p class="setup-subheading">Choose your recording type to get started</p>
+
+            <div class="recording-type-grid">
+              <button class="type-card" id="btn-select-source">
+                <div class="type-card-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2"/>
+                    <path d="M8 21h8M12 17v4"/>
+                  </svg>
+                </div>
+                <span class="type-card-label">Screen</span>
+                <span class="type-card-desc">Record your full screen</span>
+              </button>
+
+              <button class="type-card" id="btn-region-mode" disabled>
+                <div class="type-card-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/>
+                    <rect x="7" y="7" width="10" height="10" rx="1" stroke-dasharray="2 2"/>
+                  </svg>
+                </div>
+                <span class="type-card-label">Region</span>
+                <span class="type-card-desc">Record a selected area</span>
+              </button>
+
+              <button class="type-card" id="btn-screenshot" disabled>
+                <div class="type-card-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                    <circle cx="12" cy="13" r="4"/>
+                  </svg>
+                </div>
+                <span class="type-card-label">Screenshot</span>
+                <span class="type-card-desc">Capture a still image</span>
+              </button>
+            </div>
+
+            <div id="format-controls">
+              <div class="format-group">
+                <label for="select-format">Format</label>
+                <select id="select-format" class="select">
+                  <option value="video/mp4">MP4</option>
+                </select>
+              </div>
+              <div class="format-group">
+                <label for="select-quality">Quality</label>
+                <select id="select-quality" class="select">
+                  <option value="2500000">High</option>
+                  <option value="1000000">Medium</option>
+                  <option value="500000">Low</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Appears once source is selected -->
+            <button id="btn-record-setup" class="btn-start-record hidden">
+              <span class="record-dot-white"></span>
+              Start Recording
+            </button>
           </div>
         </div>
 
-        <div class="pill-inner">
-          <div class="pill-status">
-            <span class="rec-dot"></span>
-            <span id="timer" class="pill-timer">00:00</span>
+        <!-- STATE 2: Preview (region flow only) -->
+        <div id="preview-container" class="hidden">
+          <video id="preview" autoplay muted playsinline></video>
+          <canvas id="crop-canvas"></canvas>
+          <div id="region-overlay"></div>
+          <div id="selection-box"></div>
+
+          <div id="preview-toolbar">
+            <button id="btn-clear-region" class="toolbar-btn-ghost" disabled>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+              Clear Region
+            </button>
+            <button id="btn-record" class="btn-start-record" disabled>
+              <span class="record-dot-white"></span>
+              Start Recording
+            </button>
           </div>
+        </div>
 
-          <div class="pill-divider"></div>
+      </div><!-- /modal-panel -->
+    </div><!-- /recording-modal -->
 
-          <!-- Pause / Resume -->
-          <button id="btn-pause" class="pill-btn" aria-label="Pause recording" disabled>
-            <svg id="icon-pause" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <rect x="6" y="4" width="4" height="16" rx="1"/>
-              <rect x="14" y="4" width="4" height="16" rx="1"/>
-            </svg>
-            <svg id="icon-resume" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="hidden">
-              <polygon points="5,3 19,12 5,21"/>
-            </svg>
-          </button>
-
-          <!-- Stop -->
-          <button id="btn-stop" class="pill-btn" aria-label="Stop recording" disabled>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <rect x="4" y="4" width="16" height="16" rx="2"/>
-            </svg>
-          </button>
-
-          <!-- Screenshot -->
-          <button id="btn-screenshot-pill" class="pill-btn" aria-label="Take screenshot" disabled>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-              <circle cx="12" cy="13" r="4"/>
-            </svg>
-          </button>
-
-          <div class="pill-divider"></div>
-
-          <!-- Gear -->
-          <button id="btn-gear" class="pill-btn" aria-label="Settings">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-            </svg>
-          </button>
+    <!-- ── Recording pill (floats globally during active recording) ──────────── -->
+    <div id="recording-pill" class="hidden">
+      <div id="gear-panel" class="hidden">
+        <div class="gear-row">
+          <label for="select-format-pill">Format</label>
+          <select id="select-format-pill" class="select-dark">
+            <option value="video/mp4">MP4</option>
+          </select>
+        </div>
+        <div class="gear-row">
+          <label for="select-quality-pill">Quality</label>
+          <select id="select-quality-pill" class="select-dark">
+            <option value="2500000">High</option>
+            <option value="1000000">Medium</option>
+            <option value="500000">Low</option>
+          </select>
         </div>
       </div>
 
-    </main>
+      <div class="pill-inner">
+        <div class="pill-status">
+          <span class="rec-dot"></span>
+          <span id="timer" class="pill-timer">00:00</span>
+        </div>
 
-    <!-- ── Library ────────────────────────────────────────────────────────── -->
-    <section id="library">
-      <div class="library-header">
-        <h2 class="library-heading">Your Recordings</h2>
-        <span id="library-count" class="library-count"></span>
+        <div class="pill-divider"></div>
+
+        <button id="btn-pause" class="pill-btn" aria-label="Pause recording" disabled>
+          <svg id="icon-pause" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="6" y="4" width="4" height="16" rx="1"/>
+            <rect x="14" y="4" width="4" height="16" rx="1"/>
+          </svg>
+          <svg id="icon-resume" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="hidden">
+            <polygon points="5,3 19,12 5,21"/>
+          </svg>
+        </button>
+
+        <button id="btn-stop" class="pill-btn" aria-label="Stop recording" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="4" y="4" width="16" height="16" rx="2"/>
+          </svg>
+        </button>
+
+        <button id="btn-screenshot-pill" class="pill-btn" aria-label="Take screenshot" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </button>
+
+        <div class="pill-divider"></div>
+
+        <button id="btn-gear" class="pill-btn" aria-label="Settings">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
       </div>
-      <div id="library-grid" class="library-grid"></div>
-      <p id="library-empty" class="library-empty hidden">
-        No recordings yet. Record something to see it here.
-      </p>
-    </section>
+    </div>
 
-    <!-- ── Status bar ───────────────────────────────────────────────────── -->
+    <!-- ── Status bar ───────────────────────────────────────────────────────── -->
     <div id="status-bar">
-      <span id="status-text">Ready — select a source to get started</span>
+      <span id="status-text">Ready</span>
     </div>
 
   </div>

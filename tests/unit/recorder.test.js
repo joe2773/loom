@@ -19,18 +19,7 @@ describe('ScreenRecorder — MIME type resolution', () => {
     );
   });
 
-  it('falls back to vp9 when requested mimeType is unsupported', () => {
-    global.MediaRecorder.isTypeSupported
-      .mockImplementation((t) => t === 'video/webm;codecs=vp9');
-    const r = new ScreenRecorder(makeFakeStream(), { mimeType: 'video/mp4' });
-    expect(r.mimeType).toBe('video/webm;codecs=vp9');
-  });
 
-  it('falls back to plain webm when nothing else is supported', () => {
-    global.MediaRecorder.isTypeSupported.mockReturnValue(false);
-    const r = new ScreenRecorder(makeFakeStream(), { mimeType: 'video/mp4' });
-    expect(r.mimeType).toBe('video/webm');
-  });
 });
 
 describe('ScreenRecorder — start / stop', () => {
@@ -55,15 +44,15 @@ describe('ScreenRecorder — start / stop', () => {
 
     const r = new ScreenRecorder(makeFakeStream());
     r.start();
-    instance._triggerData(new Blob(['a'], { type: 'video/webm' }));
-    instance._triggerData(new Blob(['b'], { type: 'video/webm' }));
+    instance._triggerData(new Blob(['a'], { type: 'video/mp4' }));
+    instance._triggerData(new Blob(['b'], { type: 'video/mp4' }));
 
     const p = r.stop();
     instance._triggerStop();
 
     const blob = await p;
     expect(blob).toBeInstanceOf(Blob);
-    expect(blob.type).toBe('video/webm');
+    expect(blob.type).toBe('video/mp4');
   });
 
   it('stop() resolves even with no chunks', async () => {

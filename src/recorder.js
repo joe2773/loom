@@ -7,7 +7,7 @@ export class ScreenRecorder {
    * @param {MediaStream} stream
    * @param {{ mimeType?: string, videoBitsPerSecond?: number }} options
    */
-  constructor(stream, { mimeType = 'video/webm', videoBitsPerSecond = 2_500_000 } = {}) {
+  constructor(stream, { mimeType = 'video/mp4', videoBitsPerSecond = 2_500_000 } = {}) {
     // Fall back gracefully if the requested mimeType isn't supported
     const resolvedMime = MediaRecorder.isTypeSupported(mimeType)
       ? mimeType

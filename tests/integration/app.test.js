@@ -28,40 +28,57 @@ function buildDOM() {
   // Mimic the real index.html structure with all IDs main.js needs
   document.body.innerHTML = `
     <div id="app">
-      <header id="header"></header>
-      <main id="workspace">
-        <div id="setup-panel">
-          <button id="btn-select-source"></button>
-          <button id="btn-region-mode" disabled></button>
-          <button id="btn-screenshot" disabled></button>
-          <select id="select-format"><option value="video/webm">WebM</option><option value="video/mp4">MP4</option></select>
-          <select id="select-quality"><option value="2500000">High</option><option value="1000000">Medium</option></select>
-        </div>
-        <div id="preview-container" class="hidden">
-          <video id="preview"></video>
-          <canvas id="crop-canvas"></canvas>
-          <div id="region-overlay"></div>
-          <div id="selection-box"></div>
-          <div id="preview-toolbar">
-            <button id="btn-clear-region" disabled></button>
-            <button id="btn-record" disabled></button>
+      <aside id="sidebar"></aside>
+      <div id="main-content">
+        <header id="top-bar"></header>
+        <div id="library-content">
+          <button id="btn-new-video"></button>
+          <div id="library-grid"></div>
+          <p id="library-empty" class="hidden"></p>
+          <span id="library-count"></span>
+          <div id="invite-banner">
+            <button id="btn-close-banner"></button>
           </div>
         </div>
-        <div id="recording-pill" class="hidden">
-          <div id="gear-panel" class="hidden">
-            <select id="select-format-pill"><option value="video/webm">WebM</option><option value="video/mp4">MP4</option></select>
-            <select id="select-quality-pill"><option value="2500000">High</option></select>
+      </div>
+      <div id="recording-modal" class="hidden">
+        <div id="modal-backdrop"></div>
+        <div class="modal-panel">
+          <button id="btn-modal-close"></button>
+          <div id="setup-panel">
+            <button id="btn-select-source"></button>
+            <button id="btn-region-mode" disabled></button>
+            <button id="btn-screenshot" disabled></button>
+            <button id="btn-record-setup" class="hidden"></button>
+            <select id="select-format"><option value="video/mp4">MP4</option></select>
+            <select id="select-quality"><option value="2500000">High</option><option value="1000000">Medium</option></select>
           </div>
-          <div class="pill-inner">
-            <span class="rec-dot"></span>
-            <span id="timer">00:00</span>
-            <button id="btn-pause" disabled></button>
-            <button id="btn-stop" disabled></button>
-            <button id="btn-screenshot-pill" disabled></button>
-            <button id="btn-gear"></button>
+          <div id="preview-container" class="hidden">
+            <video id="preview"></video>
+            <canvas id="crop-canvas"></canvas>
+            <div id="region-overlay"></div>
+            <div id="selection-box"></div>
+            <div id="preview-toolbar">
+              <button id="btn-clear-region" disabled></button>
+              <button id="btn-record" disabled></button>
+            </div>
           </div>
         </div>
-      </main>
+      </div>
+      <div id="recording-pill" class="hidden">
+        <div id="gear-panel" class="hidden">
+          <select id="select-format-pill"><option value="video/mp4">MP4</option></select>
+          <select id="select-quality-pill"><option value="2500000">High</option></select>
+        </div>
+        <div class="pill-inner">
+          <span class="rec-dot"></span>
+          <span id="timer">00:00</span>
+          <button id="btn-pause" disabled></button>
+          <button id="btn-stop" disabled></button>
+          <button id="btn-screenshot-pill" disabled></button>
+          <button id="btn-gear"></button>
+        </div>
+      </div>
       <div id="status-bar"><span id="status-text"></span></div>
     </div>
     <!-- Pause/resume icons referenced by main.js -->
@@ -148,10 +165,14 @@ describe('Initial state (idle)', () => {
   it('select source button is enabled', () => {
     expect(isDisabled('btn-select-source')).toBe(false);
   });
+
+  it('btn-record-setup is hidden initially', () => {
+    expect(isHidden('btn-record-setup')).toBe(true);
+  });
 });
 
 // ─── Source selection ─────────────────────────────────────────────────────────
-describe('Select Source → previewing', () => {
+describe('Select Source → source-selected', () => {
   it('calls getDisplayMedia', async () => {
     click('btn-select-source');
     await Promise.resolve();
@@ -162,22 +183,21 @@ describe('Select Source → previewing', () => {
   // These tests verify state transitions after async handler completion.
   // Currently skipped due to timing issues with mocked async handlers.
   // Core functionality is covered by unit tests and record/pause/stop integration tests.
-  it.skip('transitions to previewing: shows preview, hides setup, shows toolbar', async () => {
+  it.skip('transitions to source-selected: setup panel stays visible', async () => {
     click('btn-select-source');
     await Promise.resolve();
     await Promise.resolve();
-    expect(isHidden('setup-panel')).toBe(true);
-    expect(isHidden('preview-container')).toBe(false);
-    expect(isHidden('preview-toolbar')).toBe(false);
+    expect(isHidden('setup-panel')).toBe(false);
+    expect(isHidden('preview-container')).toBe(true);
+    expect(isHidden('btn-record-setup')).toBe(false);
     expect(isHidden('recording-pill')).toBe(true);
   });
 
-  it.skip('enables region-mode, record, and screenshot buttons', async () => {
+  it.skip('enables region-mode and screenshot buttons', async () => {
     click('btn-select-source');
     await Promise.resolve();
     await Promise.resolve();
     expect(isDisabled('btn-region-mode')).toBe(false);
-    expect(isDisabled('btn-record')).toBe(false);
     expect(isDisabled('btn-screenshot')).toBe(false);
   });
 
@@ -193,16 +213,6 @@ describe('Select Source → previewing', () => {
     await Promise.resolve();
     await Promise.resolve();
     expect(status()).toMatch(/source selected/i);
-  });
-
-  it.skip('falls back to webm when mp4 is unsupported', async () => {
-    global.MediaRecorder.isTypeSupported.mockReturnValue(false);
-    el('select-format').value = 'video/mp4';
-    click('btn-select-source');
-    await Promise.resolve();
-    await Promise.resolve();
-    expect(el('select-format').value).toBe('video/webm');
-    expect(status()).toMatch(/webm/i);
   });
 
   it('does not throw on NotAllowedError', async () => {
@@ -226,28 +236,25 @@ describe('Select Source → previewing', () => {
 
 // ─── Recording flow ───────────────────────────────────────────────────────────
 describe('Record → Stop', () => {
-  async function reachPreviewing() {
+  // One microtask tick is enough to let the getDisplayMedia mock resolve;
+  // the source-selection skipped tests note timing quirks with 2+ awaits.
+  async function reachRecording() {
     click('btn-select-source');
     await Promise.resolve();
-    await Promise.resolve();
+    click('btn-record-setup');
   }
 
-  async function reachRecording() {
-    await reachPreviewing();
-    click('btn-record');
-  }
-
-  it('transitions to recording: shows pill, hides toolbar', async () => {
+  it('transitions to recording: shows pill, hides setup panel', async () => {
     await reachRecording();
     expect(isHidden('recording-pill')).toBe(false);
-    expect(isHidden('preview-toolbar')).toBe(true);
+    expect(isHidden('setup-panel')).toBe(true);
   });
 
-  it('enables pause and stop, disables record', async () => {
+  it('enables pause and stop, disables record-setup', async () => {
     await reachRecording();
     expect(isDisabled('btn-pause')).toBe(false);
     expect(isDisabled('btn-stop')).toBe(false);
-    expect(isDisabled('btn-record')).toBe(true);
+    expect(isDisabled('btn-select-source')).toBe(true);
   });
 
   it('locks format and quality selects', async () => {
@@ -269,7 +276,7 @@ describe('Record → Stop', () => {
     expect(isDisabled('select-quality-pill')).toBe(true);
   });
 
-  it('stop button downloads blob and returns to previewing', async () => {
+  it('stop button downloads blob and returns to source-selected', async () => {
     await reachRecording();
     fakeRecorder._triggerData();
 
@@ -277,7 +284,7 @@ describe('Record → Stop', () => {
     fakeRecorder._triggerStop();
     await Promise.resolve();
     expect(isHidden('recording-pill')).toBe(true);
-    expect(isHidden('preview-toolbar')).toBe(false);
+    expect(isHidden('setup-panel')).toBe(false);
   });
 });
 
@@ -286,7 +293,7 @@ describe('Pause / Resume', () => {
   async function reachRecording() {
     click('btn-select-source');
     await Promise.resolve();
-    click('btn-record');
+    click('btn-record-setup');
   }
 
   it('pause transitions to paused: pill gets .paused class', async () => {
@@ -340,7 +347,7 @@ describe('Screenshot', () => {
     click('btn-select-source');
     await Promise.resolve();
     await Promise.resolve();
-    click('btn-record');
+    click('btn-record-setup');
 
     click('btn-screenshot-pill');
     expect(status()).toMatch(/screenshot/i);
@@ -352,7 +359,7 @@ describe('Gear panel', () => {
   async function reachRecording() {
     click('btn-select-source');
     await Promise.resolve();
-    click('btn-record');
+    click('btn-record-setup');
   }
 
   it('clicking gear button shows the panel', async () => {

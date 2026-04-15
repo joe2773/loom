@@ -11,9 +11,9 @@ afterEach(() => {
 });
 
 describe('generateFilename', () => {
-  it('produces a webm filename for video type', () => {
-    const name = generateFilename('video', 'webm');
-    expect(name).toMatch(/^loom-.+\.webm$/);
+  it('produces an mp4 filename for video type', () => {
+    const name = generateFilename('video', 'mp4');
+    expect(name).toMatch(/^loom-.+\.mp4$/);
   });
 
   it('produces a png filename for image type', () => {
@@ -22,15 +22,15 @@ describe('generateFilename', () => {
   });
 
   it('includes an ISO-like timestamp', () => {
-    const name = generateFilename('video', 'webm');
-    // Expect loom-YYYY-MM-DDTHH-MM-SS.webm
-    expect(name).toMatch(/loom-\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}\.webm/);
+    const name = generateFilename('video', 'mp4');
+    // Expect loom-YYYY-MM-DDTHH-MM-SS.mp4
+    expect(name).toMatch(/loom-\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}\.mp4/);
   });
 });
 
 describe('downloadBlob', () => {
   it('creates an object URL and triggers a click on an anchor', () => {
-    const blob = new Blob(['data'], { type: 'video/webm' });
+    const blob = new Blob(['data'], { type: 'video/mp4' });
     const clickSpy = vi.fn();
     const anchor = { href: '', download: '', click: clickSpy, style: {} };
 
@@ -38,10 +38,10 @@ describe('downloadBlob', () => {
     vi.spyOn(document.body, 'appendChild').mockImplementation(() => {});
     vi.spyOn(document.body, 'removeChild').mockImplementation(() => {});
 
-    downloadBlob(blob, 'test.webm');
+    downloadBlob(blob, 'test.mp4');
 
     expect(URL.createObjectURL).toHaveBeenCalledWith(blob);
-    expect(anchor.download).toBe('test.webm');
+    expect(anchor.download).toBe('test.mp4');
     expect(anchor.href).toBe('blob:fake-url');
     expect(clickSpy).toHaveBeenCalled();
 
@@ -49,14 +49,14 @@ describe('downloadBlob', () => {
   });
 
   it('revokes the object URL after a timeout', () => {
-    const blob = new Blob(['data'], { type: 'video/webm' });
+    const blob = new Blob(['data'], { type: 'video/mp4' });
     const anchor = { href: '', download: '', click: vi.fn(), style: {} };
 
     vi.spyOn(document, 'createElement').mockReturnValue(anchor);
     vi.spyOn(document.body, 'appendChild').mockImplementation(() => {});
     vi.spyOn(document.body, 'removeChild').mockImplementation(() => {});
 
-    downloadBlob(blob, 'test.webm');
+    downloadBlob(blob, 'test.mp4');
     expect(URL.revokeObjectURL).not.toHaveBeenCalled();
 
     vi.advanceTimersByTime(1100);
