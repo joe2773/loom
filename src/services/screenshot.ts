@@ -1,16 +1,11 @@
-/**
- * Captures the current video frame, optionally cropped to a region.
- *
- * @param {HTMLVideoElement} videoEl
- * @param {{ x: number, y: number, width: number, height: number }|null} cropRect
- *   Normalized coordinates (0–1) relative to the stream resolution. Pass null for full frame.
- * @returns {HTMLCanvasElement}
- */
-export function captureFrame(videoEl, cropRect = null) {
+import type { CropRect } from '../types';
+
+export function captureFrame(videoEl: HTMLVideoElement, cropRect: CropRect | null = null): HTMLCanvasElement {
   const vw = videoEl.videoWidth;
   const vh = videoEl.videoHeight;
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
+  if (!ctx) return canvas;
 
   if (cropRect) {
     const sx = Math.round(cropRect.x * vw);

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ScreenRecorder } from '../../src/recorder.js';
-import { makeFakeStream, makeFakeMediaRecorder, setMediaRecorderFactory, resetMediaRecorderFactory } from '../setup.js';
+import { ScreenRecorder } from '../../src/services/recorder';
+import { makeFakeStream, makeFakeMediaRecorder, setMediaRecorderFactory, resetMediaRecorderFactory } from '../setup';
 
 beforeEach(() => {
   resetMediaRecorderFactory();

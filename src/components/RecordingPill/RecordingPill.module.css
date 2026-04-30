@@ -1,0 +1,131 @@
+.pill {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 10px;
+  background: var(--surface-dark);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-pill);
+  border: 1px solid var(--border-dark);
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--red);
+  flex-shrink: 0;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.paused .dot {
+  background: #f59e0b;
+  animation: none;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--red-pulse); }
+  60%      { box-shadow: 0 0 0 5px transparent; }
+}
+
+.timer {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-on-dark);
+  letter-spacing: 0.04em;
+  min-width: 46px;
+}
+
+.divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border-dark);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.gearPanel {
+  background: var(--surface-dark);
+  border: 1px solid var(--border-dark);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: var(--shadow-pill);
+  min-width: 200px;
+}
+
+.gearRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.gearRow label {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.selectDark {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid var(--border-dark);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  font-family: var(--font);
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+}
+
+.selectDark:focus {
+  border-color: var(--purple);
+}

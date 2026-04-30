@@ -1,0 +1,116 @@
+.container {
+  position: absolute;
+  inset: 0;
+  background: #0c0b12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.video {
+  max-width: calc(100% - 48px);
+  max-height: calc(100% - 80px);
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 40px rgba(0, 0, 0, 0.6);
+  display: block;
+}
+
+.cropCanvas {
+  display: none;
+}
+
+.regionOverlay {
+  position: absolute;
+  inset: 0;
+  cursor: crosshair;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+.selectionBox {
+  position: absolute;
+  border: 2px dashed var(--purple);
+  background: rgba(98, 93, 245, 0.1);
+  pointer-events: none;
+  z-index: 11;
+  display: none;
+}
+
+.toolbar {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 20;
+}
+
+.btnGhost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(20, 18, 30, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btnGhost:hover:not(:disabled) {
+  background: rgba(20, 18, 30, 0.8);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
+}
+
+.btnGhost:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btnRecord {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: var(--purple);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(98, 93, 245, 0.45);
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+}
+
+.btnRecord:hover:not(:disabled) {
+  background: var(--purple-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(98, 93, 245, 0.5);
+}
+
+.btnRecord:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.recordDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #fff;
+  flex-shrink: 0;
+}

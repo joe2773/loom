@@ -1,7 +1,10 @@
 import { vi } from 'vitest';
+import '@testing-library/jest-dom/vitest';
+
+(globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
 
 // ── MediaStream / MediaStreamTrack ──────────────────────────────────────────
-export function makeFakeTrack(overrides = {}) {
+export function makeFakeTrack(overrides: Record<string, unknown> = {}): any {
   return {
     stop: vi.fn(),
     addEventListener: vi.fn(),
@@ -11,7 +14,7 @@ export function makeFakeTrack(overrides = {}) {
   };
 }
 
-export function makeFakeStream(tracks = [makeFakeTrack()]) {
+export function makeFakeStream(tracks: any[] = [makeFakeTrack()]): any {
   return {
     getTracks: vi.fn(() => tracks),
     getVideoTracks: vi.fn(() => tracks.filter((t) => t.kind === 'video')),
@@ -20,16 +23,16 @@ export function makeFakeStream(tracks = [makeFakeTrack()]) {
 }
 
 // ── MediaRecorder ────────────────────────────────────────────────────────────
-export function makeFakeMediaRecorder(stream, options = {}) {
-  const instance = {
+export function makeFakeMediaRecorder(_stream: any, options: { mimeType?: string } = {}): any {
+  const instance: any = {
     start: vi.fn(),
     pause: vi.fn(),
     resume: vi.fn(),
     stop: vi.fn(),
     state: 'inactive',
     mimeType: options.mimeType || 'video/webm',
-    ondataavailable: null,
-    onstop: null,
+    ondataavailable: null as ((e: { data: Blob }) => void) | null,
+    onstop: null as (() => void) | null,
     _triggerData(data = new Blob(['chunk'], { type: 'video/webm' })) {
       if (instance.ondataavailable) instance.ondataavailable({ data });
     },
@@ -49,27 +52,28 @@ export function makeFakeMediaRecorder(stream, options = {}) {
 }
 
 // Install global MediaRecorder mock
-let _MediaRecorderFactory = (stream, opts) => makeFakeMediaRecorder(stream, opts);
+let _MediaRecorderFactory: (stream: any, opts: any) => any =
+  (stream, opts) => makeFakeMediaRecorder(stream, opts);
 
-global.MediaRecorder = vi.fn((stream, opts) => _MediaRecorderFactory(stream, opts));
-global.MediaRecorder.isTypeSupported = vi.fn(() => true);
+(globalThis as any).MediaRecorder = vi.fn((stream: any, opts: any) => _MediaRecorderFactory(stream, opts));
+(globalThis as any).MediaRecorder.isTypeSupported = vi.fn(() => true);
 
-export function setMediaRecorderFactory(fn) { _MediaRecorderFactory = fn; }
+export function setMediaRecorderFactory(fn: (stream: any, opts: any) => any) { _MediaRecorderFactory = fn; }
 export function resetMediaRecorderFactory() {
   _MediaRecorderFactory = (stream, opts) => makeFakeMediaRecorder(stream, opts);
 }
 
 // ── navigator.mediaDevices ───────────────────────────────────────────────────
-global.navigator.mediaDevices = {
+(globalThis as any).navigator.mediaDevices = {
   getDisplayMedia: vi.fn(),
 };
 
 // ── URL ─────────────────────────────────────────────────────────────────────
-global.URL.createObjectURL = vi.fn(() => 'blob:fake-url');
-global.URL.revokeObjectURL = vi.fn();
+(globalThis as any).URL.createObjectURL = vi.fn(() => 'blob:fake-url');
+(globalThis as any).URL.revokeObjectURL = vi.fn();
 
 // ── Canvas ───────────────────────────────────────────────────────────────────
-export function makeFakeCanvas(overrides = {}) {
+export function makeFakeCanvas(overrides: any = {}) {
   const ctx = {
     drawImage: vi.fn(),
     ...overrides.ctx,
@@ -78,7 +82,7 @@ export function makeFakeCanvas(overrides = {}) {
     width: 0,
     height: 0,
     getContext: vi.fn(() => ctx),
-    toBlob: vi.fn((cb) => cb(new Blob(['png'], { type: 'image/png' }))),
+    toBlob: vi.fn((cb: (b: Blob) => void) => cb(new Blob(['png'], { type: 'image/png' }))),
     captureStream: vi.fn(() => makeFakeStream()),
     ...overrides,
   };
@@ -86,13 +90,12 @@ export function makeFakeCanvas(overrides = {}) {
 }
 
 // ── requestAnimationFrame ────────────────────────────────────────────────────
-global.requestAnimationFrame = vi.fn((cb) => { cb(); return 1; });
-global.cancelAnimationFrame = vi.fn();
+(globalThis as any).requestAnimationFrame = vi.fn((cb: () => void) => { cb(); return 1; });
+(globalThis as any).cancelAnimationFrame = vi.fn();
 
 // ── HTMLCanvasElement mock for jsdom ──────────────────────────────────────────
-// jsdom doesn't implement canvas.getContext, so we mock it
 if (typeof HTMLCanvasElement !== 'undefined') {
-  HTMLCanvasElement.prototype.getContext = vi.fn(function() {
+  HTMLCanvasElement.prototype.getContext = vi.fn(function () {
     return { drawImage: vi.fn() };
-  });
+  }) as any;
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { downloadBlob, downloadCanvasAsPng, generateFilename } from '../../src/downloader.js';
+import { downloadBlob, downloadCanvasAsPng, generateFilename } from '../../src/services/downloader';
 
 beforeEach(() => {
   vi.useFakeTimers();
