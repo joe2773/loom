@@ -1,0 +1,11 @@
+.bar {
+  padding: 6px 20px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.text {
+  font-size: 12px;
+  color: var(--text-muted);
+}

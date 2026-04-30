@@ -1,13 +1,6 @@
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL as string | undefined;
 
-/**
- * Uploads a recorded blob to GCS via a signed URL from loom-api.
- * @param {Blob} blob - The recorded video blob
- * @param {string} filename - The filename to store in GCS
- * @returns {Promise<string>} The public GCS URL of the uploaded video
- */
-export async function uploadToGCS(blob, filename) {
-  // Step 1: get a signed PUT URL from the API
+export async function uploadToGCS(blob: Blob, filename: string): Promise<string> {
   const signRes = await fetch(`${API_URL}/sign-upload`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -19,9 +12,11 @@ export async function uploadToGCS(blob, filename) {
     throw new Error(err.error || `sign-upload failed: ${signRes.status}`);
   }
 
-  const { uploadUrl, publicUrl } = await signRes.json();
+  const { uploadUrl, publicUrl } = (await signRes.json()) as {
+    uploadUrl: string;
+    publicUrl: string;
+  };
 
-  // Step 2: PUT the blob directly to GCS
   const uploadRes = await fetch(uploadUrl, {
     method: 'PUT',
     headers: { 'Content-Type': blob.type },

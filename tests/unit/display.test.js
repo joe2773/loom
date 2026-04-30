@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { acquireStream, stopStream } from '../../src/display.js';
-import { makeFakeStream, makeFakeTrack } from '../setup.js';
+import { acquireStream, stopStream } from '../../src/services/display';
+import { makeFakeStream, makeFakeTrack } from '../setup';
 
 beforeEach(() => {
   vi.clearAllMocks();

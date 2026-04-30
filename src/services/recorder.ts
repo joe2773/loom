@@ -1,14 +1,11 @@
-/**
- * Thin wrapper around MediaRecorder.
- * Resolves stop() with a complete Blob of the recording.
- */
+import type { RecorderOptions } from '../types';
+
 export class ScreenRecorder {
-  /**
-   * @param {MediaStream} stream
-   * @param {{ mimeType?: string, videoBitsPerSecond?: number }} options
-   */
-  constructor(stream, { mimeType = 'video/webm', videoBitsPerSecond = 2_500_000 } = {}) {
-    // Fall back gracefully if the requested mimeType isn't supported
+  private _mimeType: string;
+  private _chunks: Blob[];
+  private _recorder: MediaRecorder;
+
+  constructor(stream: MediaStream, { mimeType = 'video/webm', videoBitsPerSecond = 2_500_000 }: RecorderOptions = {}) {
     const resolvedMime = MediaRecorder.isTypeSupported(mimeType)
       ? mimeType
       : MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
@@ -22,31 +19,29 @@ export class ScreenRecorder {
       videoBitsPerSecond,
     });
 
-    this._recorder.ondataavailable = (e) => {
+    this._recorder.ondataavailable = (e: BlobEvent) => {
       if (e.data && e.data.size > 0) this._chunks.push(e.data);
     };
   }
 
-  /** Returns the resolved MIME type actually used. */
-  get mimeType() {
+  get mimeType(): string {
     return this._mimeType;
   }
 
-  start() {
+  start(): void {
     this._chunks = [];
-    this._recorder.start(100); // collect data every 100 ms
+    this._recorder.start(100);
   }
 
-  pause() {
+  pause(): void {
     if (this._recorder.state === 'recording') this._recorder.pause();
   }
 
-  resume() {
+  resume(): void {
     if (this._recorder.state === 'paused') this._recorder.resume();
   }
 
-  /** @returns {Promise<Blob>} */
-  stop() {
+  stop(): Promise<Blob> {
     return new Promise((resolve) => {
       this._recorder.onstop = () => {
         resolve(new Blob(this._chunks, { type: this._mimeType }));

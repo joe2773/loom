@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { captureFrame } from '../../src/screenshot.js';
+import { captureFrame } from '../../src/services/screenshot';
 
 function makeVideoEl(videoWidth = 1920, videoHeight = 1080) {
   return { videoWidth, videoHeight };

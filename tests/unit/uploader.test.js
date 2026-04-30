@@ -3,7 +3,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 // Stub VITE_API_URL before importing the module
 vi.stubEnv('VITE_API_URL', 'http://localhost:3001');
 
-const { uploadToGCS } = await import('../../src/uploader.js');
+const { uploadToGCS } = await import('../../src/services/uploader');
 
 afterEach(() => {
   vi.unstubAllGlobals();

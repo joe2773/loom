@@ -1,0 +1,67 @@
+/* ── Reset ─────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+/* ── Tokens ────────────────────────────────────────────────────────────────── */
+:root {
+  --purple:        #625DF5;
+  --purple-hover:  #4F4BD4;
+  --purple-light:  #EEF0FF;
+
+  --bg:            #FAFAFA;
+  --surface:       #FFFFFF;
+  --surface-dark:  #1A1523;
+
+  --text:          #1A1523;
+  --text-muted:    #6B6B7E;
+  --text-on-dark:  #FFFFFF;
+
+  --border:        #E8E5F0;
+  --border-dark:   #2E2A3B;
+
+  --red:           #EF4444;
+  --red-pulse:     rgba(239, 68, 68, 0.4);
+
+  --radius-sm:     8px;
+  --radius-md:     12px;
+  --radius-full:   9999px;
+
+  --shadow-card:   0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
+  --shadow-pill:   0 8px 32px rgba(0,0,0,0.24), 0 2px 8px rgba(0,0,0,0.14);
+
+  --font:  'Inter', system-ui, -apple-system, sans-serif;
+  --mono:  'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────────── */
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Shared select styling (used by SetupPanel format/quality dropdowns) ──── */
+.select {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.select:hover:not(:disabled) { border-color: var(--purple); }
+.select:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(98,93,245,0.12); }
+.select:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Utility ───────────────────────────────────────────────────────────────── */
+.hidden { display: none !important; }
