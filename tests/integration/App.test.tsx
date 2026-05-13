@@ -22,6 +22,12 @@ vi.mock('../../src/services/screenshot', () => ({
   })),
 }));
 
+// Stub @react-oauth/google so tests don't try to load Google's script tag.
+vi.mock('@react-oauth/google', () => ({
+  GoogleOAuthProvider: ({ children }: { children: any }) => <>{children}</>,
+  GoogleLogin: () => <div data-testid="google-login" />,
+}));
+
 let fakeStream: any;
 let fakeRecorder: any;
 
@@ -55,7 +61,12 @@ async function renderApp() {
   // Dynamic import so each test gets a fresh module-level state
   vi.resetModules();
   const { default: App } = await import('../../src/App');
-  return render(<App />);
+  const { AuthProvider } = await import('../../src/auth/AuthContext');
+  return render(
+    <AuthProvider>
+      <App />
+    </AuthProvider>,
+  );
 }
 
 async function selectSource(user: ReturnType<typeof userEvent.setup>) {

@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/google"
       version = "~> 5.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.6"
+    }
   }
 }
 
@@ -141,54 +145,5 @@ resource "google_artifact_registry_repository" "loom_api" {
   depends_on = [google_project_service.artifactregistry]
 }
 
-# Cloud Run service for the API backend
-resource "google_cloud_run_service" "loom_api" {
-  name     = "loom-api"
-  location = var.region
-
-  template {
-    spec {
-      service_account_name = google_service_account.loom_api.email
-
-      containers {
-        image = "${var.region}-docker.pkg.dev/${var.project_id}/loom-api/loom-api:latest"
-
-        ports {
-          container_port = 8080
-        }
-
-        env {
-          name  = "BUCKET_NAME"
-          value = google_storage_bucket.loom_videos.name
-        }
-
-        env {
-          name  = "ALLOWED_ORIGIN"
-          value = google_cloud_run_service.loom.status[0].url
-        }
-
-        resources {
-          limits = {
-            cpu    = "1000m"
-            memory = "256Mi"
-          }
-        }
-      }
-    }
-  }
-
-  traffic {
-    percent         = 100
-    latest_revision = true
-  }
-
-  depends_on = [google_project_service.run]
-}
-
-# Public invoke on the API service
-resource "google_cloud_run_service_iam_member" "api_public" {
-  service  = google_cloud_run_service.loom_api.name
-  location = google_cloud_run_service.loom_api.location
-  role     = "roles/run.invoker"
-  member   = "allUsers"
-}
+# Cloud Run v2 service for the API backend lives in auth.tf (needs Cloud SQL
+# + Secret Manager wiring, which uses cleaner v2 syntax).

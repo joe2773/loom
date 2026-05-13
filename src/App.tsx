@@ -11,12 +11,14 @@ import { StatusBar } from './components/StatusBar/StatusBar';
 import { useTimer } from './hooks/useTimer';
 import { useRegionSelector } from './hooks/useRegionSelector';
 import { useLibrary } from './hooks/useLibrary';
+import { useAuth } from './auth/AuthContext';
 
 import { acquireStream, stopStream } from './services/display';
 import { ScreenRecorder } from './services/recorder';
 import { captureFrame } from './services/screenshot';
 import { downloadBlob, downloadCanvasAsPng, generateFilename } from './services/downloader';
 import { uploadToGCS } from './services/uploader';
+import { UnauthenticatedError } from './services/apiClient';
 
 import type { Phase } from './types';
 import styles from './App.module.css';
@@ -43,6 +45,7 @@ export default function App() {
   const timer = useTimer();
   const region = useRegionSelector();
   const library = useLibrary();
+  const { token } = useAuth();
 
   const isActive = phase === 'recording' || phase === 'paused';
 
@@ -101,22 +104,30 @@ export default function App() {
     const filename = generateFilename('video', ext);
 
     downloadBlob(blob, filename);
-    setStatus(`Saved locally as .${ext}${API_URL ? ' — uploading…' : ''}`);
+    const willUpload = Boolean(API_URL && token);
+    setStatus(
+      `Saved locally as .${ext}` +
+        (willUpload ? ' — uploading…' : API_URL ? ' — sign in to upload' : ''),
+    );
 
     recorderRef.current = null;
     setPhase('previewing');
 
-    if (API_URL) {
+    if (willUpload) {
       try {
         const publicUrl = await uploadToGCS(blob, filename);
         library.prepend(filename, publicUrl);
         setStatus(`Saved and uploaded: ${filename}`);
       } catch (err) {
-        const msg = err instanceof Error ? err.message : 'unknown';
-        setStatus(`Saved locally — upload failed: ${msg}`);
+        if (err instanceof UnauthenticatedError) {
+          setStatus('Saved locally — sign in to upload');
+        } else {
+          const msg = err instanceof Error ? err.message : 'unknown';
+          setStatus(`Saved locally — upload failed: ${msg}`);
+        }
       }
     }
-  }, [library, stopCropLoop, timer]);
+  }, [library, stopCropLoop, timer, token]);
 
   const onStreamEnded = useCallback(() => {
     if (phase === 'recording' || phase === 'paused') {
