@@ -1,0 +1,23 @@
+services:
+  api:
+    build:
+      context: ./api
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      BUCKET_NAME: ${BUCKET_NAME:-loom-recordings}
+      ALLOWED_ORIGIN: ${ALLOWED_ORIGIN:-http://localhost:8080}
+    env_file:
+      - path: .env
+        required: false
+
+  frontend:
+    build:
+      context: .
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3001}
+    ports:
+      - "5173:8080"
+    depends_on:
+      - api

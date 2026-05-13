@@ -1,7 +1,9 @@
-const API_URL = import.meta.env.VITE_API_URL as string | undefined;
+import { apiFetch, UnauthenticatedError } from './apiClient';
+
+export { UnauthenticatedError };
 
 export async function uploadToGCS(blob: Blob, filename: string): Promise<string> {
-  const signRes = await fetch(`${API_URL}/sign-upload`, {
+  const signRes = await apiFetch('/sign-upload', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ filename, contentType: blob.type }),

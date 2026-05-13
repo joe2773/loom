@@ -1,3 +1,4 @@
+import { LoginButton } from './LoginButton';
 import styles from './Header.module.css';
 
 export function Header() {
@@ -11,6 +12,8 @@ export function Header() {
         </svg>
         <span className={styles.wordmark}>loom</span>
       </div>
+      <div className={styles.spacer} />
+      <LoginButton />
     </header>
   );
 }

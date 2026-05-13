@@ -19,3 +19,7 @@
   color: var(--text);
   letter-spacing: -0.03em;
 }
+
+.spacer {
+  flex: 1;
+}

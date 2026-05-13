@@ -17,3 +17,8 @@ output "bucket_name" {
   description = "GCS bucket holding uploaded videos"
   value       = google_storage_bucket.loom_videos.name
 }
+
+output "db_instance_connection_name" {
+  description = "Cloud SQL connection name (project:region:instance) — used by the Cloud SQL Auth Proxy for local debugging"
+  value       = google_sql_database_instance.loom.connection_name
+}
