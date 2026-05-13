@@ -10,7 +10,7 @@ output "artifact_registry_repo" {
 
 output "api_service_url" {
   description = "Public HTTPS URL of the loom-api Cloud Run service"
-  value       = google_cloud_run_v2_service.loom_api.uri
+  value       = google_cloud_run_service.loom_api.status[0].url
 }
 
 output "bucket_name" {

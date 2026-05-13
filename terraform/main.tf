@@ -145,5 +145,102 @@ resource "google_artifact_registry_repository" "loom_api" {
   depends_on = [google_project_service.artifactregistry]
 }
 
-# Cloud Run v2 service for the API backend lives in auth.tf (needs Cloud SQL
-# + Secret Manager wiring, which uses cleaner v2 syntax).
+# Cloud Run service for the API backend
+resource "google_cloud_run_service" "loom_api" {
+  name     = "loom-api"
+  location = var.region
+
+  template {
+    metadata {
+      annotations = {
+        "run.googleapis.com/cloudsql-instances" = google_sql_database_instance.loom.connection_name
+      }
+    }
+
+    spec {
+      service_account_name = google_service_account.loom_api.email
+
+      containers {
+        image = "${var.region}-docker.pkg.dev/${var.project_id}/loom-api/loom-api:latest"
+
+        ports {
+          container_port = 8080
+        }
+
+        env {
+          name  = "BUCKET_NAME"
+          value = google_storage_bucket.loom_videos.name
+        }
+        env {
+          name  = "ALLOWED_ORIGIN"
+          value = var.allowed_origin
+        }
+        env {
+          name  = "GOOGLE_CLIENT_ID"
+          value = var.google_oauth_client_id
+        }
+        env {
+          name  = "DB_USER"
+          value = google_sql_user.loom.name
+        }
+        env {
+          name  = "DB_NAME"
+          value = google_sql_database.loom.name
+        }
+        env {
+          name  = "DB_HOST"
+          value = "/cloudsql/${google_sql_database_instance.loom.connection_name}"
+        }
+        env {
+          name = "DB_PASSWORD"
+          value_from {
+            secret_key_ref {
+              name = google_secret_manager_secret.db_password.secret_id
+              key  = "latest"
+            }
+          }
+        }
+        env {
+          name = "JWT_SECRET"
+          value_from {
+            secret_key_ref {
+              name = google_secret_manager_secret.jwt_secret.secret_id
+              key  = "latest"
+            }
+          }
+        }
+        env {
+          name  = "NODE_ENV"
+          value = "production"
+        }
+
+        resources {
+          limits = {
+            cpu    = "1000m"
+            memory = "256Mi"
+          }
+        }
+      }
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+
+  depends_on = [
+    google_project_service.run,
+    google_secret_manager_secret_iam_member.api_jwt_secret,
+    google_secret_manager_secret_iam_member.api_db_password,
+    google_project_iam_member.api_cloudsql_client,
+  ]
+}
+
+# Public invoke on the API service
+resource "google_cloud_run_service_iam_member" "api_public" {
+  service  = google_cloud_run_service.loom_api.name
+  location = google_cloud_run_service.loom_api.location
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}

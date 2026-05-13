@@ -31,3 +31,9 @@ variable "db_tier" {
   type        = string
   default     = "db-f1-micro"
 }
+
+variable "allowed_origin" {
+  description = "CORS origin allowed by the API. Set to the frontend Cloud Run URL after first deploy; '*' is fine for initial bring-up."
+  type        = string
+  default     = "*"
+}

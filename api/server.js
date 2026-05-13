@@ -1,13 +1,14 @@
+// Must run before any other import so DATABASE_URL / BUCKET_NAME / etc.
+// are populated before route modules instantiate clients at module load.
+// No-op in production where no .env file is present.
+import 'dotenv/config';
+
 import express from 'express';
 import cors from 'cors';
 import { authRouter } from './src/routes/auth.js';
 import { videosRouter } from './src/routes/videos.js';
 import { requireAuth } from './src/middleware/requireAuth.js';
 import { migrate } from './src/db/migrate.js';
-
-if (process.env.NODE_ENV !== 'production') {
-  await import('dotenv/config').catch(() => {});
-}
 
 const app = express();
 
